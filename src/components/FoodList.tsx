@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, query, onSnapshot, serverTimestamp, updateDoc, doc, deleteDoc, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, query, onSnapshot, serverTimestamp, updateDoc, doc, deleteDoc, getDocs, writeBatch, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Trash2, XCircle } from 'lucide-react';
 
@@ -95,41 +95,34 @@ const FoodList: React.FC = () => {
   };
 
   useEffect(() => {
-    try {
-      console.log('Setting up food list listener');
-      const q = query(collection(db, 'foodList'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        console.log('Received food list update:', snapshot.docs.length, 'items');
-        const newItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as FoodItem[];
-        console.log('Processed items:', newItems);
-        setItems(newItems);
-      }, (error) => {
-        console.error('Error in food list listener:', error);
-      });
-
-      return () => unsubscribe();
-    } catch (error) {
-      console.error('Error setting up food list listener:', error);
-    }
+    const q = query(
+      collection(db, 'foodList'),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setItems(snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })));
+    });
+    return () => unsubscribe();
   }, []);
 
   return (
     <div className="p-4 bg-gray-900 min-h-screen text-white">
       <div className="max-w-6xl mx-auto">
-        <div className="flex gap-4 mb-6">
+        <div className="flex justify-between items-center mb-4">
           <button
             onClick={handleGochuMeUp}
-            className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
           >
             Gochu Me Up
           </button>
           <button
             onClick={handleDestroyAll}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
           >
+            <XCircle size={20} />
             Destroy All
           </button>
         </div>

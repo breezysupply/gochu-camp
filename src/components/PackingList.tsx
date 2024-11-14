@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, query, onSnapshot, serverTimestamp, updateDoc, doc, deleteDoc, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, addDoc, query, onSnapshot, serverTimestamp, updateDoc, doc, deleteDoc, getDocs, writeBatch, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Trash2, XCircle } from 'lucide-react';
 
@@ -17,13 +17,19 @@ const PackingList: React.FC = () => {
   const [items, setItems] = useState<PackingItem[]>([]);
   const [newItem, setNewItem] = useState('');
 
-  const defaultItems = [
-    "Tent",
-    "Sleeping Bag",
-    "Camping Chair",
-    "Headlamp",
-    "Water Bottle"
-  ];
+  useEffect(() => {
+    const q = query(
+      collection(db, 'packingList'),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setItems(snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as PackingItem)));
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleDelete = async (itemId: string) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
@@ -53,7 +59,20 @@ const PackingList: React.FC = () => {
       }
     }
 
-    for (const item of defaultItems) {
+    const campingGear = [
+      'Tent',
+      'Sleeping Bag',
+      'Camping Chair',
+      'Headlamp',
+      'Water Bottle',
+      'First Aid Kit',
+      'Matches/Lighter',
+      'Multi-tool',
+      'Insect Repellent',
+      'Sunscreen'
+    ];
+
+    for (const item of campingGear) {
       await addDoc(collection(db, 'packingList'), {
         item,
         breezy: false,
@@ -93,57 +112,36 @@ const PackingList: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    try {
-      console.log('Setting up packing list listener');
-      const q = query(collection(db, 'packingList'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        console.log('Received packing list update:', snapshot.docs.length, 'items');
-        const newItems = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as PackingItem[];
-        console.log('Processed items:', newItems);
-        setItems(newItems);
-      }, (error) => {
-        console.error('Error in packing list listener:', error);
-      });
-
-      return () => unsubscribe();
-    } catch (error) {
-      console.error('Error setting up packing list listener:', error);
-    }
-  }, []);
-
   return (
-    <div className="p-4 bg-gray-900 min-h-screen text-white">
+    <div className="p-4 bg-gray-900 text-white min-h-screen">
       <div className="max-w-6xl mx-auto">
-        <div className="flex gap-4 mb-6">
+        <div className="flex justify-between items-center mb-4">
           <button
             onClick={handleGochuMeUp}
-            className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
           >
             Gochu Me Up
           </button>
           <button
             onClick={handleDestroyAll}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
           >
+            <XCircle size={20} />
             Destroy All
           </button>
         </div>
-        
-        <form onSubmit={handleAddItem} className="mb-6 flex gap-2">
+
+        <form onSubmit={handleAddItem} className="mb-4 flex gap-2">
           <input
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
+            className="flex-1 px-4 py-2 bg-gray-800 text-white rounded border border-gray-700"
             placeholder="Add new item..."
-            className="flex-1 p-2 rounded bg-gray-800 text-white border border-gray-700"
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
           >
             Add
           </button>

@@ -15,7 +15,7 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@types/react-router-dom": "^5.3.3",
-    "@vitejs/plugin-react": "^2.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.41",
     "react": "^18.2.0",
@@ -25,8 +25,11 @@
     "vite": "^5.4.11"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
     "firebase": "^10.12.5",
+    "framer-motion": "^11.11.15",
     "lucide-react": "^0.427.0",
+    "react-draggable": "^4.4.6",
     "react-router-dom": "^6.26.0"
   }
 }

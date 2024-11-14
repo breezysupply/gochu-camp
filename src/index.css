@@ -1,3 +1,50 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Tahoma', sans-serif;
+  overflow: hidden;
+}
+
+.text-shadow {
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.desktop-icon {
+  user-select: none;
+}
+
+.window-handle {
+  cursor: move;
+}
+
+.desktop-icon {
+  width: 75px;
+  text-align: center;
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+  cursor: pointer;
+  padding: 5px;
+  margin: 10px;
+  border: 1px solid transparent;
+}
+
+.desktop-icon:hover {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.window {
+  border: 1px solid #0A246A;
+  background: #ECE9D8;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+}
+
+.window-title {
+  background: linear-gradient(to right, #0A246A, #A6CAF0);
+  color: white;
+  font-weight: bold;
+}

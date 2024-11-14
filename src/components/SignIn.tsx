@@ -1,16 +1,12 @@
 import React from "react";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 
 const SignIn: React.FC = () => {
-  const navigate = useNavigate();
-
   const handleGoogleSignIn = async () => {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      navigate("/profile");
     } catch (error) {
       console.error("Error signing in with Google:", error);
     }
