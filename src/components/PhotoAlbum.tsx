@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, auth } from '../firebase';
+import { Trash2, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Photo {
   id: string;
   imageUrl: string;
+  originalUrl: string;
   caption: string;
   createdAt: any;
   userName: string;
@@ -36,13 +38,21 @@ const PhotoAlbum: React.FC = () => {
 
     try {
       setUploading(true);
-      const storageRef = ref(storage, `photos/${Date.now()}_${image.name}`);
       
-      await uploadBytes(storageRef, image);
-      const downloadURL = await getDownloadURL(storageRef);
+      // Upload original image
+      const originalRef = ref(storage, `photos/original_${Date.now()}_${image.name}`);
+      await uploadBytes(originalRef, image);
+      const originalUrl = await getDownloadURL(originalRef);
+      
+      // Create and upload thumbnail
+      const thumbnail = await createThumbnail(image);
+      const thumbnailRef = ref(storage, `photos/thumb_${Date.now()}_${image.name}`);
+      await uploadBytes(thumbnailRef, thumbnail);
+      const thumbnailUrl = await getDownloadURL(thumbnailRef);
 
       await addDoc(collection(db, 'photos'), {
-        imageUrl: downloadURL,
+        imageUrl: thumbnailUrl,
+        originalUrl: originalUrl,
         caption,
         createdAt: serverTimestamp(),
         userName: auth.currentUser.displayName || 'Anonymous',
@@ -97,86 +107,152 @@ const PhotoAlbum: React.FC = () => {
     }
   };
 
+  const handleDelete = async (photoId: string) => {
+    if (!auth.currentUser) return;
+    if (window.confirm('Are you sure you want to delete this photo?')) {
+      try {
+        await deleteDoc(doc(db, 'photos', photoId));
+      } catch (error) {
+        console.error('Error deleting photo:', error);
+      }
+    }
+  };
+
+  const createThumbnail = (file: File): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = Math.min(500, Math.min(img.width, img.height));
+        
+        canvas.width = size;
+        canvas.height = size;
+        
+        if (ctx) {
+          // Calculate dimensions to maintain aspect ratio in square
+          const scale = size / Math.min(img.width, img.height);
+          const scaledWidth = img.width * scale;
+          const scaledHeight = img.height * scale;
+          const x = (size - scaledWidth) / 2;
+          const y = (size - scaledHeight) / 2;
+          
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, size, size);
+          ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+          
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+          }, 'image/jpeg', 0.8);
+        }
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageClick = (originalUrl: string) => {
+    window.open(originalUrl, '_blank');
+  };
+
   return (
-    <div className="h-full flex flex-col">
-      <div className="windows-toolbar mb-4 bg-[#ECE9D8] border border-[#919B9C] p-2">
-        <button 
-          className={`px-4 py-1 border border-[#919B9C] mr-2 ${
-            activeTab === 'upload' ? 'bg-white' : 'bg-[#ECE9D8] active:bg-[#DADADA]'
-          }`}
-          onClick={() => setActiveTab('upload')}
-        >
-          Upload
-        </button>
-        <button 
-          className={`px-4 py-1 border border-[#919B9C] ${
-            activeTab === 'view' ? 'bg-white' : 'bg-[#ECE9D8] active:bg-[#DADADA]'
-          }`}
-          onClick={() => setActiveTab('view')}
-        >
-          View Photos
-        </button>
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-900">Photo Album</h2>
+        <div className="flex gap-2">
+          <button
+            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+              activeTab === 'upload'
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+            onClick={() => setActiveTab('upload')}
+          >
+            Upload
+          </button>
+          <button
+            className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+              activeTab === 'view'
+                ? 'bg-gray-900 text-white'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+            onClick={() => setActiveTab('view')}
+          >
+            View Photos
+          </button>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 bg-white border border-[#919B9C]">
-        {activeTab === 'upload' ? (
-          <form onSubmit={handleSubmit} className="mb-6 space-y-4 bg-[#ECE9D8] p-4 border border-[#919B9C]">
-            <div>
-              <label className="block mb-2 text-[#000080]">Add Photo</label>
-              <input
-                id="photoInput"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full p-2 bg-white border border-[#919B9C]"
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-[#000080]">Caption</label>
-              <textarea
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                className="w-full p-2 bg-white border border-[#919B9C]"
-                rows={3}
-              />
-            </div>
+      {activeTab === 'upload' ? (
+        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+          <form onSubmit={handleSubmit} className="w-full max-w-md">
+            <input
+              type="file"
+              onChange={handleImageChange}
+              accept="image/*"
+              className="hidden"
+              id="photo-upload"
+            />
+            <label
+              htmlFor="photo-upload"
+              className="cursor-pointer flex flex-col items-center gap-2 mb-4 p-8 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              <Upload size={24} className="text-gray-400" />
+              <span className="text-sm text-gray-600">
+                {image ? image.name : 'Click to upload a photo'}
+              </span>
+            </label>
+            
+            <input
+              type="text"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Add a caption..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 mb-4"
+            />
+            
             <button
               type="submit"
-              disabled={uploading}
-              className="w-full px-4 py-2 bg-[#ECE9D8] border border-[#919B9C] active:bg-[#DADADA] disabled:opacity-50"
+              disabled={!image || uploading}
+              className="w-full px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 disabled:bg-gray-400"
             >
               {uploading ? 'Uploading...' : 'Upload Photo'}
             </button>
           </form>
-        ) : (
-          <div className="space-y-6">
-            {loading ? (
-              <div className="text-center p-4">Loading photos...</div>
-            ) : photos.length === 0 ? (
-              <div className="text-center p-4">No photos uploaded yet.</div>
-            ) : (
-              photos.map((photo) => (
-                <div key={photo.id} className="bg-[#ECE9D8] border border-[#919B9C] p-4">
-                  <img
-                    src={photo.imageUrl}
-                    alt={photo.caption}
-                    className="w-full max-h-[500px] object-contain border border-[#919B9C]"
-                  />
-                  <div className="mt-2 p-4 bg-white border border-[#919B9C]">
-                    <p className="text-lg mb-2">{photo.caption}</p>
-                    <div className="text-sm text-gray-600">
-                      <p>Posted by: {photo.userName}</p>
-                      {photo.createdAt && (
-                        <p>Posted on: {new Date(photo.createdAt.toDate()).toLocaleString()}</p>
-                      )}
-                    </div>
-                  </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
+          {photos.map((photo) => (
+            <div key={photo.id} className="relative bg-white rounded-lg overflow-hidden shadow-sm">
+              <img
+                src={photo.imageUrl}
+                alt={photo.caption || 'Uploaded photo'}
+                className="aspect-square object-cover w-full cursor-pointer"
+                onClick={() => handleImageClick(photo.originalUrl)}
+              />
+              <div className="p-3">
+                {photo.caption && (
+                  <p className="text-gray-900 mb-1">{photo.caption}</p>
+                )}
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>{photo.userName}</span>
+                  <span>
+                    {photo.createdAt?.toDate?.() ? 
+                      format(photo.createdAt.toDate(), 'MMM d, yyyy') : 
+                      'Just now'
+                    }
+                  </span>
                 </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
+              </div>
+              <button
+                onClick={() => handleDelete(photo.id)}
+                className="absolute top-2 right-2 p-1 bg-white/80 rounded-full text-gray-600 hover:text-red-500"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, User } from 'lucide-react';
+import { LogOut, User, Monitor } from 'lucide-react';
 import { auth } from '../firebase';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface TaskbarProps {
   openWindows: Array<{
@@ -22,6 +23,7 @@ const Taskbar: React.FC<TaskbarProps> = ({
 }) => {
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { toggleTheme } = useTheme();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,6 +52,19 @@ const Taskbar: React.FC<TaskbarProps> = ({
                 <User size={48} />
                 <span className="font-bold">{auth.currentUser?.displayName || 'User'}</span>
               </div>
+            </div>
+
+            <div className="p-2">
+              <button 
+                onClick={() => {
+                  setStartMenuOpen(false);
+                  toggleTheme();
+                }}
+                className="w-full flex items-center gap-2 p-2 hover:bg-[#316AC5] hover:text-white rounded mb-2"
+              >
+                <Monitor size={20} />
+                <span>Change to modern experience</span>
+              </button>
             </div>
 
             <div className="p-2">

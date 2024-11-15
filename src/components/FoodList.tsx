@@ -109,109 +109,111 @@ const FoodList: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4 bg-gray-900 min-h-screen text-white">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-4">
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-900">Food List</h2>
+        <div className="flex gap-2">
           <button
             onClick={handleGochuMeUp}
-            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            className="text-sm text-gray-600 hover:text-gray-900"
           >
-            Gochu Me Up
+            + Add food essentials
           </button>
           <button
             onClick={handleDestroyAll}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2"
+            className="text-sm text-red-600 hover:text-red-900"
           >
-            <XCircle size={20} />
-            Destroy All
+            Delete All
           </button>
         </div>
-        
-        <form onSubmit={handleAddItem} className="mb-6 flex gap-2">
+      </div>
+
+      <form onSubmit={handleAddItem} className="mb-6">
+        <div className="flex gap-2">
           <input
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            placeholder="Add new food item..."
-            className="flex-1 p-2 rounded bg-gray-800 text-white border border-gray-700"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+            placeholder="Add food item..."
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
           >
             Add
           </button>
-        </form>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-700">
-                <th className="text-left p-2">Food Item</th>
-                <th className="p-2">Breezy</th>
-                <th className="p-2">Six</th>
-                <th className="p-2">Yoseb</th>
-                <th className="p-2">Yims</th>
-                <th className="p-2">JackyP</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map(item => (
-                <tr key={item.id} className="border-b border-gray-700">
-                  <td className="p-2 flex items-center gap-2">
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                    {item.item}
-                  </td>
-                  <td className="p-2 text-center">
-                    <input 
-                      type="checkbox" 
-                      checked={item.breezy} 
-                      onChange={() => handleCheckboxChange(item.id, 'breezy')}
-                      className="accent-purple-600 h-5 w-5"
-                    />
-                  </td>
-                  <td className="p-2 text-center">
-                    <input 
-                      type="checkbox" 
-                      checked={item.six} 
-                      onChange={() => handleCheckboxChange(item.id, 'six')}
-                      className="accent-purple-600 h-5 w-5"
-                    />
-                  </td>
-                  <td className="p-2 text-center">
-                    <input 
-                      type="checkbox" 
-                      checked={item.yoseb} 
-                      onChange={() => handleCheckboxChange(item.id, 'yoseb')}
-                      className="accent-purple-600 h-5 w-5"
-                    />
-                  </td>
-                  <td className="p-2 text-center">
-                    <input 
-                      type="checkbox" 
-                      checked={item.yims} 
-                      onChange={() => handleCheckboxChange(item.id, 'yims')}
-                      className="accent-purple-600 h-5 w-5"
-                    />
-                  </td>
-                  <td className="p-2 text-center">
-                    <input 
-                      type="checkbox" 
-                      checked={item.jackyP} 
-                      onChange={() => handleCheckboxChange(item.id, 'jackyP')}
-                      className="accent-purple-600 h-5 w-5"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
+      </form>
+
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left p-2 text-sm font-medium text-gray-500">Item</th>
+              <th className="p-2 text-sm font-medium text-gray-500">Breezy</th>
+              <th className="p-2 text-sm font-medium text-gray-500">Six</th>
+              <th className="p-2 text-sm font-medium text-gray-500">Yoseb</th>
+              <th className="p-2 text-sm font-medium text-gray-500">Yims</th>
+              <th className="p-2 text-sm font-medium text-gray-500">JackyP</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {items.map(item => (
+              <tr key={item.id}>
+                <td className="p-2 flex items-center gap-2">
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                  <span className="text-gray-900">{item.item}</span>
+                </td>
+                <td className="p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={item.breezy}
+                    onChange={() => handleCheckboxChange(item.id, 'breezy')}
+                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  />
+                </td>
+                <td className="p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={item.six}
+                    onChange={() => handleCheckboxChange(item.id, 'six')}
+                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  />
+                </td>
+                <td className="p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={item.yoseb}
+                    onChange={() => handleCheckboxChange(item.id, 'yoseb')}
+                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  />
+                </td>
+                <td className="p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={item.yims}
+                    onChange={() => handleCheckboxChange(item.id, 'yims')}
+                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  />
+                </td>
+                <td className="p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={item.jackyP}
+                    onChange={() => handleCheckboxChange(item.id, 'jackyP')}
+                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

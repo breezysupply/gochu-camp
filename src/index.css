@@ -5,20 +5,31 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Tahoma', sans-serif;
-  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.text-shadow {
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
+/* Modern theme specific styles */
+.modern-theme {
+  @apply bg-white text-gray-900;
+}
+
+.modern-theme input[type="checkbox"] {
+  @apply rounded border-gray-300 text-gray-900 focus:ring-gray-900;
+}
+
+.modern-theme button {
+  @apply transition-all duration-200;
+}
+
+/* Keep existing Windows XP styles */
+.window-handle {
+  cursor: move;
 }
 
 .desktop-icon {
   user-select: none;
-}
-
-.window-handle {
-  cursor: move;
 }
 
 .desktop-icon {
