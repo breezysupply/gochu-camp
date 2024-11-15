@@ -124,21 +124,24 @@ const PhotoAlbum: React.FC = () => {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const size = Math.min(500, Math.min(img.width, img.height));
+        const size = 500; // Fixed thumbnail size
         
         canvas.width = size;
         canvas.height = size;
         
         if (ctx) {
-          // Calculate dimensions to maintain aspect ratio in square
-          const scale = size / Math.min(img.width, img.height);
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, size, size);
+
+          // Calculate dimensions to fit entire image in square
+          const scale = Math.min(size / img.width, size / img.height);
           const scaledWidth = img.width * scale;
           const scaledHeight = img.height * scale;
+
+          // Center the image
           const x = (size - scaledWidth) / 2;
           const y = (size - scaledHeight) / 2;
           
-          ctx.fillStyle = 'white';
-          ctx.fillRect(0, 0, size, size);
           ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
           
           canvas.toBlob((blob) => {
@@ -223,12 +226,14 @@ const PhotoAlbum: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           {photos.map((photo) => (
             <div key={photo.id} className="relative bg-white rounded-lg overflow-hidden shadow-sm">
-              <img
-                src={photo.imageUrl}
-                alt={photo.caption || 'Uploaded photo'}
-                className="aspect-square object-cover w-full cursor-pointer"
-                onClick={() => handleImageClick(photo.originalUrl)}
-              />
+              <div className="relative pt-[100%]">
+                <img
+                  src={photo.imageUrl}
+                  alt={photo.caption || 'Uploaded photo'}
+                  className="absolute inset-0 w-full h-full object-contain bg-white cursor-pointer"
+                  onClick={() => handleImageClick(photo.originalUrl)}
+                />
+              </div>
               <div className="p-3">
                 {photo.caption && (
                   <p className="text-gray-900 mb-1">{photo.caption}</p>
