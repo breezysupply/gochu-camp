@@ -77,8 +77,10 @@ const WindowsDesktop: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden relative flex flex-col">
-      {/* Desktop Background */}
+    <div className="h-screen flex flex-col overflow-hidden">
+      <div className="bg-gray-900 text-white text-center py-2 font-bold">
+        NEXT GOCHUCON: JANUARY 17-19
+      </div>
       <div 
         className="flex-1 relative"
         style={{
@@ -108,7 +110,6 @@ const WindowsDesktop: React.FC = () => {
           {openWindows.map((id) => {
             const icon = desktopIcons.find(icon => icon.id === id);
             if (!icon) return null;
-
             return (
               <Window
                 key={id}
@@ -127,20 +128,15 @@ const WindowsDesktop: React.FC = () => {
           })}
         </AnimatePresence>
       </div>
-
-      {/* Taskbar */}
       <Taskbar
-        openWindows={openWindows.map(id => {
-          const icon = desktopIcons.find(i => i.id === id);
-          return {
-            id,
-            title: icon?.title || '',
-            icon: icon?.icon,
-            isMinimized: minimizedWindows.includes(id)
-          };
-        })}
+        openWindows={openWindows.map(id => ({
+          id,
+          title: desktopIcons.find(i => i.id === id)?.title || '',
+          icon: desktopIcons.find(i => i.id === id)?.icon,
+          isMinimized: minimizedWindows.includes(id)
+        }))}
         activeWindow={activeWindow}
-        onWindowClick={(id) => minimizedWindows.includes(id) ? handleRestore(id) : setActiveWindow(id)}
+        onWindowClick={handleIconClick}
         onSignOut={handleSignOut}
       />
     </div>

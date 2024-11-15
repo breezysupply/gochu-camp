@@ -11,21 +11,24 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children, onSignOut }) => {
   const { toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-white">
-      <nav className="border-b border-gray-100">
+    <div className="min-h-screen bg-[#0f172a]">
+      <div className="bg-black text-white text-center py-2 font-bold">
+        NEXT GOCHUCON: JANUARY 17-19
+      </div>
+      <nav className="border-b border-gray-800 bg-[#1e293b]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="text-xl font-bold">Travel Planner</div>
+            <div className="text-xl font-bold text-white">GOCHUCON!</div>
             <div className="flex items-center gap-4">
               <button
                 onClick={toggleTheme}
-                className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm rounded-md border border-gray-300"
+                className="text-gray-300 hover:text-white px-4 py-2 text-sm rounded-md border border-gray-600 hover:border-gray-500 bg-[#1e293b]"
               >
                 Switch to Windows XP
               </button>
               <button
                 onClick={onSignOut}
-                className="bg-gray-900 text-white px-4 py-2 text-sm rounded-md hover:bg-gray-800"
+                className="bg-purple-600 text-white px-4 py-2 text-sm rounded-md hover:bg-purple-700"
               >
                 Sign Out
               </button>
@@ -33,20 +36,26 @@ const ModernLayout: React.FC<ModernLayoutProps> = ({ children, onSignOut }) => {
           </div>
         </div>
       </nav>
-      <main>
+      <main className="text-white">
         <div className="text-center py-20 px-4">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Plan your trip together
+          <h1 className="text-6xl font-bold tracking-tight text-purple-400 sm:text-7xl drop-shadow-lg">
+            LGTB
           </h1>
-          <p className="mt-6 text-lg leading-8 text-gray-600 max-w-2xl mx-auto">
-            Effortlessly organize your camping trip with friends. Keep track of packing lists, 
-            plan meals together, and share photos of your adventures.
+          <p className="mt-6 text-xl leading-8 text-gray-300 max-w-2xl mx-auto font-medium">
+            Dem gochu boys are planning again!
           </p>
+          <div className="mt-12 flex justify-center">
+            <img 
+              src="/hehe.png" 
+              alt="hehe" 
+              className="max-w-xl w-full"
+            />
+          </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             {React.Children.map(children, (child) => (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+              <div className="bg-[#1e293b] rounded-lg shadow-xl border border-gray-700 p-6 hover:border-purple-500 transition-colors overflow-x-auto">
                 {child}
               </div>
             ))}

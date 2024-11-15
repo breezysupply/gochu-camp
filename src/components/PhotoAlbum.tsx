@@ -4,6 +4,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, auth } from '../firebase';
 import { Trash2, Upload } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Photo {
   id: string;
@@ -17,6 +18,13 @@ interface Photo {
 type Tab = 'upload' | 'view';
 
 const PhotoAlbum: React.FC = () => {
+  const { theme } = useTheme();
+  
+  const textColor = theme === 'winxp' ? 'text-black' : 'text-white';
+  const buttonTextColor = theme === 'winxp' ? 'text-black' : 'text-white';
+  const buttonHoverColor = theme === 'winxp' ? 'hover:text-gray-700' : 'hover:text-gray-300';
+  const activeButtonBg = theme === 'winxp' ? 'bg-gray-900' : 'bg-purple-600';
+
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [caption, setCaption] = useState('');
@@ -160,13 +168,13 @@ const PhotoAlbum: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Photo Album</h2>
+        <h2 className={`text-xl font-semibold ${textColor}`}>Photo Album</h2>
         <div className="flex gap-2">
           <button
             className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
               activeTab === 'upload'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:text-gray-900'
+                ? `${activeButtonBg} text-white`
+                : `${buttonTextColor} ${buttonHoverColor}`
             }`}
             onClick={() => setActiveTab('upload')}
           >
@@ -175,8 +183,8 @@ const PhotoAlbum: React.FC = () => {
           <button
             className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
               activeTab === 'view'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:text-gray-900'
+                ? `${activeButtonBg} text-white`
+                : `${buttonTextColor} ${buttonHoverColor}`
             }`}
             onClick={() => setActiveTab('view')}
           >
@@ -186,76 +194,80 @@ const PhotoAlbum: React.FC = () => {
       </div>
 
       {activeTab === 'upload' ? (
-        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
-          <form onSubmit={handleSubmit} className="w-full max-w-md">
-            <input
-              type="file"
-              onChange={handleImageChange}
-              accept="image/*"
-              className="hidden"
-              id="photo-upload"
-            />
-            <label
-              htmlFor="photo-upload"
-              className="cursor-pointer flex flex-col items-center gap-2 mb-4 p-8 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Upload size={24} className="text-gray-400" />
-              <span className="text-sm text-gray-600">
-                {image ? image.name : 'Click to upload a photo'}
-              </span>
-            </label>
-            
-            <input
-              type="text"
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="Add a caption..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 mb-4"
-            />
-            
-            <button
-              type="submit"
-              disabled={!image || uploading}
-              className="w-full px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 disabled:bg-gray-400"
-            >
-              {uploading ? 'Uploading...' : 'Upload Photo'}
-            </button>
-          </form>
+        <div className="text-black">
+          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+            <form onSubmit={handleSubmit} className="w-full max-w-md">
+              <input
+                type="file"
+                onChange={handleImageChange}
+                accept="image/*"
+                className="hidden"
+                id="photo-upload"
+              />
+              <label
+                htmlFor="photo-upload"
+                className="cursor-pointer flex flex-col items-center gap-2 mb-4 p-8 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <Upload size={24} className="text-gray-400" />
+                <span className="text-sm text-gray-600">
+                  {image ? image.name : 'Click to upload a photo'}
+                </span>
+              </label>
+              
+              <input
+                type="text"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Add a caption..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 mb-4"
+              />
+              
+              <button
+                type="submit"
+                disabled={!image || uploading}
+                className="w-full px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 disabled:bg-gray-400"
+              >
+                {uploading ? 'Uploading...' : 'Upload Photo'}
+              </button>
+            </form>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
-          {photos.map((photo) => (
-            <div key={photo.id} className="relative bg-white rounded-lg overflow-hidden shadow-sm">
-              <div className="relative pt-[100%]">
-                <img
-                  src={photo.imageUrl}
-                  alt={photo.caption || 'Uploaded photo'}
-                  className="absolute inset-0 w-full h-full object-contain bg-white cursor-pointer"
-                  onClick={() => handleImageClick(photo.originalUrl)}
-                />
-              </div>
-              <div className="p-3">
-                {photo.caption && (
-                  <p className="text-gray-900 mb-1">{photo.caption}</p>
-                )}
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{photo.userName}</span>
-                  <span>
-                    {photo.createdAt?.toDate?.() ? 
-                      format(photo.createdAt.toDate(), 'MMM d, yyyy') : 
-                      'Just now'
-                    }
-                  </span>
+        <div className="text-black">
+          <div className="grid grid-cols-2 gap-4">
+            {photos.map((photo) => (
+              <div key={photo.id} className="relative bg-white rounded-lg overflow-hidden shadow-sm">
+                <div className="relative pt-[100%]">
+                  <img
+                    src={photo.imageUrl}
+                    alt={photo.caption || 'Uploaded photo'}
+                    className="absolute inset-0 w-full h-full object-contain bg-white cursor-pointer"
+                    onClick={() => handleImageClick(photo.originalUrl)}
+                  />
                 </div>
+                <div className="p-3">
+                  {photo.caption && (
+                    <p className="text-gray-900 mb-1">{photo.caption}</p>
+                  )}
+                  <div className="flex justify-between items-center text-sm text-gray-500">
+                    <span>{photo.userName}</span>
+                    <span>
+                      {photo.createdAt?.toDate?.() ? 
+                        format(photo.createdAt.toDate(), 'MMM d, yyyy') : 
+                        'Just now'
+                      }
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleDelete(photo.id)}
+                  className="absolute top-2 right-2 p-1 bg-white/80 rounded-full text-gray-600 hover:text-red-500"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <button
-                onClick={() => handleDelete(photo.id)}
-                className="absolute top-2 right-2 p-1 bg-white/80 rounded-full text-gray-600 hover:text-red-500"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>

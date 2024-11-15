@@ -12,7 +12,7 @@ body {
 
 /* Modern theme specific styles */
 .modern-theme {
-  @apply bg-white text-gray-900;
+  @apply bg-[#1e293b] text-white;
 }
 
 .modern-theme input[type="checkbox"] {
@@ -50,7 +50,7 @@ body {
 
 .window {
   border: 1px solid #0A246A;
-  background: #ECE9D8;
+  background: #1e293b;
   box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
 }
 

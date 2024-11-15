@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, addDoc, query, onSnapshot, serverTimestamp, updateDoc, doc, deleteDoc, getDocs, writeBatch, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Trash2, XCircle } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface FoodItem {
   id: string;
@@ -14,6 +15,14 @@ interface FoodItem {
 }
 
 const FoodList: React.FC = () => {
+  const { theme } = useTheme();
+  
+  const textColor = theme === 'winxp' ? 'text-black' : 'text-white';
+  const borderColor = theme === 'winxp' ? 'border-gray-300' : 'border-gray-700';
+  const inputBg = theme === 'winxp' ? 'bg-white' : 'bg-[#1e293b]';
+  const addButtonBg = theme === 'winxp' ? 'bg-gray-900' : 'bg-purple-600';
+  const addButtonHoverBg = theme === 'winxp' ? 'hover:bg-gray-800' : 'hover:bg-purple-700';
+
   const [items, setItems] = useState<FoodItem[]>([]);
   const [newItem, setNewItem] = useState('');
 
@@ -111,17 +120,17 @@ const FoodList: React.FC = () => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Food List</h2>
+        <h2 className={`text-xl font-semibold ${textColor}`}>Food List</h2>
         <div className="flex gap-2">
           <button
             onClick={handleGochuMeUp}
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className={`text-sm ${textColor} hover:text-gray-300`}
           >
             + Add food essentials
           </button>
           <button
             onClick={handleDestroyAll}
-            className="text-sm text-red-600 hover:text-red-900"
+            className="text-sm text-red-600 hover:text-red-700"
           >
             Delete All
           </button>
@@ -134,41 +143,41 @@ const FoodList: React.FC = () => {
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+            className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400 text-black placeholder-gray-500"
             placeholder="Add food item..."
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
+            className={`px-4 py-2 ${addButtonBg} text-white rounded-md ${addButtonHoverBg}`}
           >
             Add
           </button>
         </div>
       </form>
 
-      <div className="overflow-x-auto">
+      <div className="w-full">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left p-2 text-sm font-medium text-gray-500">Item</th>
-              <th className="p-2 text-sm font-medium text-gray-500">Breezy</th>
-              <th className="p-2 text-sm font-medium text-gray-500">Six</th>
-              <th className="p-2 text-sm font-medium text-gray-500">Yoseb</th>
-              <th className="p-2 text-sm font-medium text-gray-500">Yims</th>
-              <th className="p-2 text-sm font-medium text-gray-500">JackyP</th>
+            <tr className={`border-b ${borderColor}`}>
+              <th className={`text-left p-2 text-sm font-medium ${textColor}`}>Item</th>
+              <th className={`p-2 text-sm font-medium ${textColor}`}>Breezy</th>
+              <th className={`p-2 text-sm font-medium ${textColor}`}>Six</th>
+              <th className={`p-2 text-sm font-medium ${textColor}`}>Yoseb</th>
+              <th className={`p-2 text-sm font-medium ${textColor}`}>Yims</th>
+              <th className={`p-2 text-sm font-medium ${textColor}`}>JackyP</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-300">
             {items.map(item => (
               <tr key={item.id}>
                 <td className="p-2 flex items-center gap-2">
                   <button
                     onClick={() => handleDelete(item.id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors"
+                    className="text-gray-600 hover:text-red-600 transition-colors"
                   >
                     <Trash2 size={16} />
                   </button>
-                  <span className="text-gray-900">{item.item}</span>
+                  <span className={textColor}>{item.item}</span>
                 </td>
                 <td className="p-2 text-center">
                   <input
